@@ -16,25 +16,5 @@ type QueryResultInner struct {
 	RowCount int32 `json:"rowCount,omitempty"`
 
 	// Array of columns in result (all should have the same length equal to rowCount)
-	Columns []QueryResultInnerColumnsInner `json:"columns,omitempty"`
-}
-
-// AssertQueryResultInnerRequired checks if the required fields are not zero-ed
-func AssertQueryResultInnerRequired(obj QueryResultInner) error {
-	for _, el := range obj.Columns {
-		if err := AssertQueryResultInnerColumnsInnerRequired(el); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// AssertQueryResultInnerConstraints checks if the values respects the defined constraints
-func AssertQueryResultInnerConstraints(obj QueryResultInner) error {
-	for _, el := range obj.Columns {
-		if err := AssertQueryResultInnerColumnsInnerConstraints(el); err != nil {
-			return err
-		}
-	}
-	return nil
+	Columns []any `json:"columns,omitempty"`
 }

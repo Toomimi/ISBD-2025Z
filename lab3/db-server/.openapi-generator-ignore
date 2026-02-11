@@ -21,3 +21,11 @@
 #docs/*.md
 # Then explicitly reverse the ignore rule for a single file:
 #!docs/README.md
+
+# Custom Ignore
+main.go
+go/api_schema_service.go
+go/api_execution_service.go
+go/api_metadata_service.go
+go/model_query_query_definition.go
+go/model_query_result_inner.go

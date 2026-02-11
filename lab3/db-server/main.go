@@ -14,28 +14,36 @@ import (
 	"log"
 	"net/http"
 
-	openapi "github.com/GIT_USER_ID/GIT_REPO_ID/go"
+	openapi "isbd3/go"
+	"isbd3/pkg/engine"
+	"isbd3/pkg/metadata"
 )
 
 func main() {
 	log.Printf("Server started")
+	dbmsBaseDir := ".dbms_data"
+	metastore := metadata.NewMetastore(dbmsBaseDir)
 
-	ExecutionAPIService := openapi.NewExecutionAPIService()
+	queryManager := engine.NewQueryManager(metastore, dbmsBaseDir)
+
+	ExecutionAPIService := openapi.NewExecutionAPIService(queryManager)
 	ExecutionAPIController := openapi.NewExecutionAPIController(ExecutionAPIService)
 
 	MetadataAPIService := openapi.NewMetadataAPIService()
 	MetadataAPIController := openapi.NewMetadataAPIController(MetadataAPIService)
 
-	Proj3APIService := openapi.NewProj3APIService()
-	Proj3APIController := openapi.NewProj3APIController(Proj3APIService)
-
-	Proj4APIService := openapi.NewProj4APIService()
-	Proj4APIController := openapi.NewProj4APIController(Proj4APIService)
-
-	SchemaAPIService := openapi.NewSchemaAPIService()
+	SchemaAPIService := openapi.NewSchemaAPIService(metastore)
 	SchemaAPIController := openapi.NewSchemaAPIController(SchemaAPIService)
 
-	router := openapi.NewRouter(ExecutionAPIController, MetadataAPIController, Proj3APIController, Proj4APIController, SchemaAPIController)
+	router := openapi.NewRouter(ExecutionAPIController, MetadataAPIController, SchemaAPIController)
+
+	// Required for Swagger UI
+	router.PathPrefix("/api/").Handler(http.StripPrefix("/api/", http.FileServer(http.Dir("./api"))))
+
+	router.HandleFunc("/swagger", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./api/index.html")
+	})
+	log.Printf("Try it out at http://localhost:8080/swagger")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
