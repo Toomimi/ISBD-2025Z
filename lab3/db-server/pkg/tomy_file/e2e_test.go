@@ -69,9 +69,9 @@ func TestEndToEnd(t *testing.T) {
 	varcharCount := 0
 	for _, col := range readTable.Columns {
 		switch col.(type) {
-		case Int64Column:
+		case *Int64Column:
 			int64Count++
-		case VarcharColumn:
+		case *VarcharColumn:
 			varcharCount++
 		}
 	}
@@ -85,19 +85,19 @@ func TestEndToEnd(t *testing.T) {
 	}
 
 	// Validate column content
-	if !reflect.DeepEqual(readTable.Columns[0].(Int64Column).Values, col1Data) {
+	if !reflect.DeepEqual(readTable.Columns[0].(*Int64Column).Values, col1Data) {
 		t.Errorf("Column 'id' data mismatch")
 	}
 
-	if !reflect.DeepEqual(readTable.Columns[1].(Int64Column).Values, col2Data) {
+	if !reflect.DeepEqual(readTable.Columns[1].(*Int64Column).Values, col2Data) {
 		t.Errorf("Column 'random_val' data mismatch")
 	}
 
-	if !reflect.DeepEqual(readTable.Columns[2].(VarcharColumn).Offsets, col3DataOffsets) {
+	if !reflect.DeepEqual(readTable.Columns[2].(*VarcharColumn).Offsets, col3DataOffsets) {
 		t.Errorf("Column 'description' offsets mismatch")
 	}
 
-	if !bytes.Equal(readTable.Columns[2].(VarcharColumn).Data, col3DataBytes) {
+	if !bytes.Equal(readTable.Columns[2].(*VarcharColumn).Data, col3DataBytes) {
 		t.Errorf("Column 'description' bytes mismatch")
 	}
 }
