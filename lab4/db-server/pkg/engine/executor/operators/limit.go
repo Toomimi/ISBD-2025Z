@@ -45,7 +45,7 @@ func (op *LimitOperator) NextBatch() (*types.ChunkResult, error) {
 		return batch, nil
 	}
 
-	slicedCols, err := sliceColumns(batch.Columns, 0, remaining)
+	slicedCols, err := SliceColumns(batch.Columns, 0, remaining)
 	if err != nil {
 		return nil, err
 	}

@@ -10,7 +10,9 @@ type ChunkColumn interface {
 	GetType() ChunkColumnType
 	GetName() string
 	GetAnyRepr() any
+	GetValueAny(idx int) any
 	CopyTo(other ChunkColumn, rowOffset int)
+	SizeInBytes() uint64
 }
 
 func ChunkColumnFromTomy(tomyCol tomy_file.AnyColumn) (ChunkColumn, error) {
@@ -58,6 +60,8 @@ type Int64ChunkColumn struct {
 func (c *Int64ChunkColumn) GetType() ChunkColumnType { return ChunkColumnTypeInt64 }
 func (c *Int64ChunkColumn) GetName() string          { return c.Name }
 func (c *Int64ChunkColumn) GetAnyRepr() any          { return c.Values }
+func (c *Int64ChunkColumn) GetValueAny(idx int) any  { return c.Values[idx] }
+func (c *Int64ChunkColumn) SizeInBytes() uint64      { return uint64(len(c.Values) * 8) }
 
 func (c *Int64ChunkColumn) CopyTo(other ChunkColumn, rowOffset int) {
 	target := other.(*Int64ChunkColumn)
@@ -79,6 +83,8 @@ type BooleanChunkColumn struct {
 func (c *BooleanChunkColumn) GetType() ChunkColumnType { return ChunkColumnTypeBoolean }
 func (c *BooleanChunkColumn) GetName() string          { return c.Name }
 func (c *BooleanChunkColumn) GetAnyRepr() any          { return c.Values }
+func (c *BooleanChunkColumn) GetValueAny(idx int) any  { return c.Values[idx] }
+func (c *BooleanChunkColumn) SizeInBytes() uint64      { return uint64(len(c.Values)) }
 
 func (c *BooleanChunkColumn) CopyTo(other ChunkColumn, rowOffset int) {
 	target := other.(*BooleanChunkColumn)
@@ -101,6 +107,10 @@ type VarcharChunkColumn struct {
 func (c *VarcharChunkColumn) GetType() ChunkColumnType { return ChunkColumnTypeVarchar }
 func (c *VarcharChunkColumn) GetName() string          { return c.Name }
 func (c *VarcharChunkColumn) GetAnyRepr() any          { return c.GetValuesAsString() }
+func (c *VarcharChunkColumn) GetValueAny(idx int) any {
+	return string(c.Data[c.Offsets[idx]:c.NextOffset(idx)])
+}
+func (c *VarcharChunkColumn) SizeInBytes() uint64 { return uint64(len(c.Offsets)*8 + len(c.Data)) }
 
 func (c *VarcharChunkColumn) CopyTo(other ChunkColumn, rowOffset int) {
 	target := other.(*VarcharChunkColumn)
@@ -150,18 +160,18 @@ func CloneEmpty(c ChunkColumn, capacity, maxDataSize int) ChunkColumn {
 	case ChunkColumnTypeInt64:
 		return &Int64ChunkColumn{
 			Name:   c.GetName(),
-			Values: make([]int64, capacity),
+			Values: make([]int64, 0, capacity),
 		}
 	case ChunkColumnTypeVarchar:
 		return &VarcharChunkColumn{
 			Name:    c.GetName(),
-			Offsets: make([]uint64, capacity),
-			Data:    make([]byte, 0, maxDataSize), // Len set to 0, used to know where to start copying
+			Offsets: make([]uint64, 0, capacity),
+			Data:    make([]byte, 0, maxDataSize),
 		}
 	case ChunkColumnTypeBoolean:
 		return &BooleanChunkColumn{
 			Name:   c.GetName(),
-			Values: make([]bool, capacity),
+			Values: make([]bool, 0, capacity),
 		}
 	default:
 		panic("unsupported chunk column type")

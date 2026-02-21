@@ -25,9 +25,11 @@ func main() {
 	dbmsBaseDir := ".dbms_data"
 	chunkSize := uint64(1000)
 	maxRowsInFile := uint64(10000)
+	memoryLimitBytes := uint64(10 * 1024 * 1024) // 10MB default
+
 	metastore := metadata.NewMetastore(dbmsBaseDir)
 
-	queryManager := engine.NewQueryManager(metastore, dbmsBaseDir, chunkSize, maxRowsInFile)
+	queryManager := engine.NewQueryManager(metastore, dbmsBaseDir, chunkSize, maxRowsInFile, memoryLimitBytes)
 
 	ExecutionAPIService := service.NewExecutionAPIService(queryManager)
 	ExecutionAPIController := openapi.NewExecutionAPIController(ExecutionAPIService)

@@ -36,10 +36,10 @@ type QueryManager struct {
 	Mu       sync.RWMutex
 }
 
-func NewQueryManager(m *metadata.Metastore, baseDir string, chunkSize uint64, maxRowsInFile uint64) *QueryManager {
+func NewQueryManager(m *metadata.Metastore, baseDir string, chunkSize uint64, maxRowsInFile uint64, memoryLimitBytes uint64) *QueryManager {
 	return &QueryManager{
 		Planner:  planner.NewPlanner(m),
-		Executor: executor.NewExecutor(baseDir, chunkSize, maxRowsInFile),
+		Executor: executor.NewExecutor(baseDir, chunkSize, maxRowsInFile, memoryLimitBytes),
 		Queries:  make(map[string]*QueryInfo),
 	}
 }

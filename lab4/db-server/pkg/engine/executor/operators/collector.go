@@ -27,7 +27,7 @@ func CollectAllBatches(op Operator) (*types.ColumnarResult, error) {
 	if len(allChunks) == 0 {
 		return &types.ColumnarResult{RowCount: 0, Columns: []any{}}, nil
 	}
-	finalChunk, err := mergeChunkResultsWithinOneSchema(allChunks)
+	finalChunk, err := MergeChunkResultsWithinOneSchema(allChunks)
 	if err != nil {
 		return nil, fmt.Errorf("failed to merge all batches: %w", err)
 	}

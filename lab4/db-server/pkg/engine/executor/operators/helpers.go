@@ -5,7 +5,7 @@ import (
 	"isbd4/pkg/engine/types"
 )
 
-func filterBatchColumns(columns []types.ChunkColumn, indices []int) ([]types.ChunkColumn, error) {
+func FilterBatchColumns(columns []types.ChunkColumn, indices []int) ([]types.ChunkColumn, error) {
 	result := make([]types.ChunkColumn, len(columns))
 	for i, col := range columns {
 		switch c := col.(type) {
@@ -54,7 +54,7 @@ func filterBatchVarcharColumn(col *types.VarcharChunkColumn, indices []int) *typ
 	return &types.VarcharChunkColumn{Name: col.Name, Offsets: newOffsets, Data: newData}
 }
 
-func sliceColumns(cols []types.ChunkColumn, start, count uint64) ([]types.ChunkColumn, error) {
+func SliceColumns(cols []types.ChunkColumn, start, count uint64) ([]types.ChunkColumn, error) {
 	newCols := make([]types.ChunkColumn, len(cols))
 
 	if count == 0 {
@@ -101,7 +101,7 @@ func sliceColumns(cols []types.ChunkColumn, start, count uint64) ([]types.ChunkC
 	return newCols, nil
 }
 
-func mergeChunkResultsWithinOneSchema(chunks []*types.ChunkResult) (*types.ChunkResult, error) {
+func MergeChunkResultsWithinOneSchema(chunks []*types.ChunkResult) (*types.ChunkResult, error) {
 	if len(chunks) == 0 {
 		return nil, nil
 	}
@@ -121,8 +121,17 @@ func mergeChunkResultsWithinOneSchema(chunks []*types.ChunkResult) (*types.Chunk
 	}
 
 	mergedCols := make([]types.ChunkColumn, numCols)
-	for i := range numCols {
-		mergedCols[i] = types.CloneEmpty(chunks[0].Columns[i], totalRows, totalDataSizes[i])
+	for i := 0; i < numCols; i++ {
+		c := types.CloneEmpty(chunks[0].Columns[i], totalRows, totalDataSizes[i])
+		switch typedCol := c.(type) {
+		case *types.Int64ChunkColumn:
+			typedCol.Values = typedCol.Values[:totalRows]
+		case *types.BooleanChunkColumn:
+			typedCol.Values = typedCol.Values[:totalRows]
+		case *types.VarcharChunkColumn:
+			typedCol.Offsets = typedCol.Offsets[:totalRows]
+		}
+		mergedCols[i] = c
 	}
 
 	currentRow := 0

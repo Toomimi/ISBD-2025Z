@@ -34,7 +34,7 @@ func TestMergeChunkResultsWithinOneSchema(t *testing.T) {
 
 	chunks := []*types.ChunkResult{chunk1, chunk2}
 
-	merged, err := mergeChunkResultsWithinOneSchema(chunks)
+	merged, err := MergeChunkResultsWithinOneSchema(chunks)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

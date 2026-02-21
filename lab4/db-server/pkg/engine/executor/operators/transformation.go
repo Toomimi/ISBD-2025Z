@@ -11,6 +11,22 @@ type TransformationOperator struct {
 	IsFilter    bool // whether the transformation is used for filtering
 }
 
+func NewFilterTransformationOperator(child Operator, whereExpr expr.Expression) *TransformationOperator {
+	return &TransformationOperator{
+		Child:       child,
+		Expressions: []expr.Expression{whereExpr},
+		IsFilter:    true,
+	}
+}
+
+func NewTransformationOperator(child Operator, expressions []expr.Expression) *TransformationOperator {
+	return &TransformationOperator{
+		Child:       child,
+		Expressions: expressions,
+		IsFilter:    false,
+	}
+}
+
 func (op *TransformationOperator) Close() {
 	if op.Child != nil {
 		op.Child.Close()

@@ -9,6 +9,12 @@ type FilterOperator struct {
 	Child Operator
 }
 
+func NewFilterOperator(child Operator) *FilterOperator {
+	return &FilterOperator{
+		Child: child,
+	}
+}
+
 func (op *FilterOperator) Close() {
 	if op.Child != nil {
 		op.Child.Close()
@@ -49,7 +55,7 @@ func (op *FilterOperator) NextBatch() (*types.ChunkResult, error) {
 			return batch, nil
 		}
 
-		newCols, err := filterBatchColumns(batch.Columns, passIndices)
+		newCols, err := FilterBatchColumns(batch.Columns, passIndices)
 		if err != nil {
 			return nil, err
 		}

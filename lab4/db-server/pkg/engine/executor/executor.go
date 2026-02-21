@@ -11,21 +11,23 @@ import (
 )
 
 type Executor struct {
-	tablesDir     string
-	chunkSize     uint64
-	maxRowsInFile uint64
+	tablesDir        string
+	chunkSize        uint64
+	maxRowsInFile    uint64
+	memoryLimitBytes uint64
 }
 
-func NewExecutor(baseDir string, chunkSize uint64, maxRowsInFile uint64) *Executor {
+func NewExecutor(baseDir string, chunkSize uint64, maxRowsInFile uint64, memoryLimitBytes uint64) *Executor {
 	tablesDir := filepath.Join(baseDir, "tables")
 	if err := os.MkdirAll(tablesDir, 0755); err != nil {
 		log.Fatalf("failed to create tables directory: %v", err)
 	}
 
 	return &Executor{
-		tablesDir:     tablesDir,
-		chunkSize:     chunkSize,
-		maxRowsInFile: maxRowsInFile,
+		tablesDir:        tablesDir,
+		chunkSize:        chunkSize,
+		maxRowsInFile:    maxRowsInFile,
+		memoryLimitBytes: memoryLimitBytes,
 	}
 }
 

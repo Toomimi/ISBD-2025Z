@@ -22,3 +22,11 @@ func (chunk *ChunkResult) WriteToDisk() error {
 	panic("not implemented")
 	// return nil
 }
+
+func (chunk *ChunkResult) SizeInBytes() uint64 {
+	var size uint64
+	for _, col := range chunk.Columns {
+		size += col.SizeInBytes()
+	}
+	return size
+}
